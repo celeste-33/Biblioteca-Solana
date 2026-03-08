@@ -1,34 +1,59 @@
-// No imports needed: web3, anchor, pg and more are globally available
+import * as anchor from "@coral-xyz/anchor";
+import { Program } from "@coral-xyz/anchor";
+import { BibliotecaSolana } from "../target/types/biblioteca_solana";
 
-describe("Test", () => {
-  it("initialize", async () => {
-    // Generate keypair for the new account
-    const newAccountKp = new web3.Keypair();
+describe("biblioteca_solana", () => {
 
-    // Send transaction
-    const data = new BN(42);
-    const txHash = await pg.program.methods
-      .initialize(data)
+  const provider = anchor.AnchorProvider.env();
+  anchor.setProvider(provider);
+
+  const program = anchor.workspace.BibliotecaSolana as Program<BibliotecaSolana>;
+
+  const libro = anchor.web3.Keypair.generate();
+
+  it("Crear libro", async () => {
+
+    await program.methods
+      .crearLibro(
+        "Cien años de soledad",
+        "Gabriel Garcia Marquez",
+        new anchor.BN(200),
+        new anchor.BN(10)
+      )
       .accounts({
-        newAccount: newAccountKp.publicKey,
-        signer: pg.wallet.publicKey,
-        systemProgram: web3.SystemProgram.programId,
+        libro: libro.publicKey,
+        user: provider.wallet.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId
       })
-      .signers([newAccountKp])
+      .signers([libro])
       .rpc();
-    console.log(`Use 'solana confirm -v ${txHash}' to see the logs`);
 
-    // Confirm transaction
-    await pg.connection.confirmTransaction(txHash);
-
-    // Fetch the created account
-    const newAccount = await pg.program.account.newAccount.fetch(
-      newAccountKp.publicKey
-    );
-
-    console.log("On-chain data is:", newAccount.data.toString());
-
-    // Check whether the data on-chain is equal to local 'data'
-    assert(data.eq(newAccount.data));
   });
+
+  it("Actualizar libro", async () => {
+
+    await program.methods
+      .actualizarLibro(
+        new anchor.BN(250),
+        new anchor.BN(8)
+      )
+      .accounts({
+        libro: libro.publicKey
+      })
+      .rpc();
+
+  });
+
+  it("Eliminar libro", async () => {
+
+    await program.methods
+      .eliminarLibro()
+      .accounts({
+        libro: libro.publicKey,
+        user: provider.wallet.publicKey
+      })
+      .rpc();
+
+  });
+
 });
