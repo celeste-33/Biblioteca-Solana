@@ -1,60 +1,112 @@
-# Biblioteca en Solana
+📚 BookChain — Gestión de Tienda de Libros en Solana
 
-![banner](./images/banner-biblioteca.jpg)
+BookChain es un programa on-chain desarrollado en Rust con Anchor sobre la blockchain de Solana.
+Permite a los dueños de una tienda o biblioteca gestionar libros y su inventario de forma descentralizada, transparente e inmutable.
 
-CRUD básico de un Solana Program desarrollado con Rust y Anchor desde el Solana Playground. 
+📌 ¿Qué hace el proyecto?
 
-Puedes comenzar dándole Fork a este repositorio (abajo te explicamos como 👇), **hemos preparado un entorno de codespaces listo para que no tengas que instalar nada**, solo déjate llevar por la fluidez de los ejercicios y temas desarrollados especialmente para ti. 
+BookChain implementa un sistema CRUD completo para administrar una tienda de libros.
 
-Asegúrate de clonar este repositorio a tu cuenta usando el botón **`Fork`**.
+El sistema permite:
 
-![fork](./images/fork.png)
+Crear una tienda vinculada a tu wallet (owner)
 
-## Importando el proyecto 
+Registrar libros con título, autor, precio y stock
 
-Ya con el repositorio en tu cuenta lo siguiente que debes hacer copiar el `enlace de tu repositorio`, lo que se puede hacer directamente desdel navegador:
+Eliminar libros cerrando su cuenta en la blockchain
 
-![repo](./images/repo.png)
-Posteriormente, lo uniremos con el siguiente enlace en nuestro navegador de preferencia:
+Activar o desactivar libros (ej. libro agotado)
 
-```url
-https://beta.solpg.io/
-```
+Actualizar el stock de libros (ej. cuando llegan más unidades)
 
-Lo que nos dará algo parecido a:
+Cada tienda y cada libro son cuentas derivadas (PDA) únicas en Solana.
 
-![url](./images/url.png)
+Esto garantiza que:
 
-Al pulsar enter seremos enviados al `Solana Playground` con nuestro proyecto abierto:
+No haya duplicados
 
-![pg](./images/pg.png)
+Solo el owner autorizado pueda modificar la información
 
-Para guardarlo solo damos clic en el boton `import` y asignamos un nombre:
+🏗️ Arquitectura
+Owner (Wallet)
+    │
+    └── Tienda (PDA)
+            │
+            ├── Libro A (PDA)
+            ├── Libro B (PDA)
+            └── Libro C (PDA)
+📦 Structs principales
+Tienda
+Campo	Tipo	Descripción
+owner	Pubkey	Wallet del dueño
+nombre	String	Nombre de la tienda
+libros	Vec<Pubkey>	Lista de libros registrados
+Libro
+Campo	Tipo	Descripción
+tienda	String	Nombre de la tienda
+titulo	String	Título del libro
+autor	String	Autor del libro
+precio	u64	Precio del libro
+stock	u16	Cantidad disponible
+disponible	bool	Si el libro está disponible
+⚙️ Instrucciones (Funciones del programa)
+Instrucción	Descripción
+crear_tienda(nombre)	Crea la cuenta de la tienda vinculada al owner
+registrar_libro(titulo, autor, precio, stock)	Registra un nuevo libro en la tienda
+eliminar_libro(titulo)	Elimina el libro y cierra su cuenta
+alternar_disponibilidad(titulo)	Activa o desactiva el libro
+actualizar_stock(titulo, stock)	Actualiza la cantidad disponible
+🔐 PDAs (Program Derived Addresses)
 
-![import](./images/import.png)
+Las cuentas se derivan con los siguientes seeds:
 
-## Preparacion del entorno
+Tienda
+["tienda", nombre_tienda, owner_pubkey]
+Libro
+["libro", titulo_libro, owner_pubkey]
 
-Primero conectaremos el entorno con la devnet, lo que tambien procederá a la creación de una wallet. Para eso daremos clic en donde dice **Not Conected**:
+Esto garantiza que:
 
-![playground1](./images/playground1.png)
+Cada owner tiene su propia tienda única
 
-Saldrá la siguiente ventana donde daremos en el botón **Continue**:
+No pueden existir dos libros con el mismo título dentro de la misma tienda
 
-![wallet](./images/wallet.png)
+🚀 Cómo usar el proyecto (Solana Playground)
 
-Como resultado se mostrará la siguiente información:
+1️⃣ Abre Solana Playground
 
-![status](./images/status.png)
+2️⃣ Haz fork de tu repositorio o pega el contenido de src/lib.rs
 
-* En verde: el estado de la conexión y el entorno al que se encuentra conectado
+3️⃣ Conecta tu wallet (devnet)
 
-* En amarillo: la la dirección de la wallet conectada
+4️⃣ Haz clic en:
 
-* En azul: la cantidad de tokens en la wallet
+Build
+Deploy
 
-> ℹ️ ¿Quieres ver el ejemplo de un "Hola Mundo" en Solana?. Da clic aquí: 👉 [Ver Ejemplo](https://github.com/WayLearnLatam/Solana-starter-kit/tree/1fc6349ba63375a3fe223d8d56911bc64765459b/build-deploy)
+5️⃣ Usa el panel de Test para interactuar con el programa.
 
-> ℹ️ ¿Cuentas con una Wallet de [Phantom](https://phantom.com/) que deseas importar?, Da clic aquí para ver como hacerlo: 
+💻 Ejemplo de flujo
+1. crear_tienda("MiBiblioteca")
 
-👉 [Como Importar una Wallet](https://github.com/WayLearnLatam/Solana-starter-kit/tree/1fc6349ba63375a3fe223d8d56911bc64765459b/import-key-a-playground)
+2. registrar_libro("Don Quijote", "Miguel de Cervantes", 300, 10)
+
+3. alternar_disponibilidad("Don Quijote")
+   → marca el libro como no disponible
+
+4. actualizar_stock("Don Quijote", 20)
+   → llegan más libros
+
+5. eliminar_libro("Don Quijote")
+   → elimina el libro del inventario
+🛠️ Tecnologías
+
+Solana — Blockchain rápida y escalable
+
+Anchor Framework — Framework para programas en Solana
+
+Rust — Lenguaje del smart contract
+
+👩‍💻 Autor
+
+Proyecto desarrollado por Maria Martinez como parte de un proyecto de desarrollo en Solana enfocado en la gestión de tiendas de libros en blockchain.
